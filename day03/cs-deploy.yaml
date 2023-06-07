@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cs-deploy
+  namespace: cs-ns
+  labels:
+    app: cs
+    name: cs-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cs
+      name: cs-po
+  template:
+    metadata:
+      name: cs-po
+      labels:
+        app: cs
+        name: cs-po
+    spec:
+      volumes:
+      - name: cs-vol
+        persistentVolumeClaim:
+          claimName: cs-pvc
+      containers:
+      - name: cs-container
+        image: linuxserver/code-server:arm64v8-4.13.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: cs-port
+          containerPort: 8443
+        envFrom:
+        - configMapRef:
+            name: cs-cm
+        - secretRef:
+            name: cs-secret
+        volumeMounts:
+        - mountPath: /config/workspace
+          name: cs-vol
