@@ -1,0 +1,32 @@
+--- 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-ing
+  namespace: minio-ns
+  labels:
+    name: minio-ing
+    app: minio
+spec:
+  ingressClassName: nginx
+  rules: 
+  - host: console-188.166.196.89.nip.io #dov.mydomain.com (point port to this domain address)
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: minio-svc
+            port:
+              name: console-port
+  - host: data-188.166.196.89.nip.io #dov.mydomain.com (point port to this domain address)
+    http:
+      paths:
+      - path: /data
+        pathType: Prefix
+        backend:
+          service:
+            name: minio-svc
+            port:
+              name: api-port

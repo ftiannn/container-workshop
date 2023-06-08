@@ -1,0 +1,26 @@
+# for illustration purpose
+# should be added in gitignore
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: minio-cm
+  namespace: minio-ns
+  labels:
+    app: minio
+    name: minio-cm
+data: 
+  MINIO_ROOT_USER: bWluaW8tcm9vdC11c2VyCg==
+
+---
+apiVersion: v1
+kind: Secret
+metadata: 
+  name: minio-secret
+  namespace: minio-ns
+  labels:
+    app: minio
+    name: minio-secret
+type: Opaque
+data: 
+  MINIO_ROOT_PASSWORD: bWluaW8tcm9vdC1wYXNzd29yZA==

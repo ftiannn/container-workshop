@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio-sts
+  namespace: minio-ns
+  labels:
+    name: minio-sts
+    app: minio
+spec: 
+  serviceName: minio-hsvc
+  replicas: 4
+  selector:
+    matchLabels:
+      name: minio-po
+      app: minio
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: minio-pvc
+      labels: 
+        app: minio
+        name: mimio-pvc
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+
+  template:
+    metadata:
+      name: minio-po
+      labels:
+        name: minio-po
+        app: minio
+    spec:
+      initContainers:
+      - name: busybox
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command: 
+        - /bin/sh
+        - -c
+        - "chown 1001:1001 /data"
+        volumeMounts:
+        - name: minio-pvc
+          mountPath: /data
+
+      containers:
+      - name: minio-container
+        image: bitnami/minio:2023.6.2-debian-11-r1 
+        imagePullPolicy: IfNotPresent
+        command: 
+        - minio
+        - server
+        - --address=:9000
+        - --console-address=:9090
+        - http://minio-sts-{0...3}.minio-hsvc.minio-ns.svc.cluster.local/data
+        envFrom:
+        - configMapRef:
+            name: minio-cm
+        - secretRef:
+            name: minio-secret
+        ports:
+        - name: api-port
+          containerPort: 9000
+        - name: console-port
+          containerPort: 9090
